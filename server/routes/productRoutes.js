@@ -1,6 +1,6 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
-const Product = require("../models/Product");
+import Product from "../model/Product.js";
 
 
 // CREATE
@@ -31,4 +31,4 @@ router.delete("/:id", async (req, res) => {
   res.json({ message: "Product Deleted" });
 });
 
-module.exports = router;
+export default router

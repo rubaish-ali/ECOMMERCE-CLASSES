@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-
+import React from "react";
 export default function Sidebar() {
   return (
     <div className="w-64 h-screen bg-slate-900 text-white p-5 fixed">

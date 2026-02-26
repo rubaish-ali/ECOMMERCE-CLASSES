@@ -1,3 +1,4 @@
+import React from "react";
 export default function Header() {
   return (
     <div className="bg-white shadow p-4 flex justify-between items-center">
