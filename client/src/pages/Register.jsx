@@ -10,10 +10,12 @@ const Register = () => {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [showPassword, setShowPassword] = useState(false)
+    const [loading, setLoading] = useState(false) // Loading state
     const navigate = useNavigate()
 
     async function submit(e) {
         e.preventDefault()
+        setLoading(true)
         try {
             const data = await axios.post("http://localhost:8080/register", {
                 name,
@@ -22,10 +24,20 @@ const Register = () => {
                 phone
             })
             toast.success('Successfully registered!')
-            navigate("/login")
+            // Navigate to login after 2 seconds
+            setTimeout(() => {
+                navigate("/login")
+            }, 2000)
         } catch (error) {
-            toast.error("Please try again later!")
+            toast.error(error.response?.data?.message || "Please try again later!")
+        } finally {
+            setLoading(false)
         }
+    }
+
+    // Direct login navigation function
+    const goToLogin = () => {
+        navigate("/login")
     }
 
     return (
@@ -159,13 +171,34 @@ const Register = () => {
                         </label>
                     </div>
 
-                    {/* Submit Button */}
-                    <button
-                        type="submit"
-                        className="w-full bg-gradient-to-r from-yellow-400 to-yellow-500 text-white py-3 rounded-lg font-semibold hover:from-yellow-500 hover:to-yellow-600 transform hover:scale-[1.02] transition-all duration-300 shadow-lg hover:shadow-xl"
-                    >
-                       
-                    </button>
+                    {/* Buttons Container */}
+                    <div className="space-y-3">
+                        {/* Create Account Button */}
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="w-full bg-gradient-to-r from-yellow-400 to-yellow-500 text-white py-3 rounded-lg font-semibold hover:from-yellow-500 hover:to-yellow-600 transform hover:scale-[1.02] transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {loading ? (
+                                <div className="flex items-center justify-center gap-2">
+                                    <div className="w-5 h-5 border-t-2 border-white rounded-full animate-spin"></div>
+                                    <span>Creating Account...</span>
+                                </div>
+                            ) : (
+                                "Create Account"
+                            )}
+                        </button>
+
+                        {/* Direct Login Button (Optional) */}
+                        <button
+                            type="button"
+                            onClick={goToLogin}
+                            className="w-full bg-blue-500 text-white py-3 rounded-lg font-semibold hover:bg-blue-600 transform hover:scale-[1.02] transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+                        >
+                            <span>🔐</span>
+                            Go to Login Page
+                        </button>
+                    </div>
                 </form>
 
                 {/* Divider */}

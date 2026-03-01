@@ -21,13 +21,25 @@ const Login = () => {
       toast.success('Successfully logged in!')
       localStorage.setItem("id", response.data.data._id)
       localStorage.setItem("token", response.data.token)
-      navigate("/products")
-      console.log(response)
+      // Successful login ke baad products page par jayega
+      setTimeout(() => {
+        navigate("/products")
+      }, 1500)
     } catch (error) {
       toast.error(error.response?.data?.message || "Login failed!")
     } finally {
       setLoading(false)
     }
+  }
+
+  // Direct products page navigation function
+  const goToProducts = () => {
+    navigate("/products")
+  }
+
+  // Direct dashboard navigation function
+  const goToDashboard = () => {
+    navigate("/dashboard")
   }
 
   return (
@@ -53,7 +65,7 @@ const Login = () => {
               Login
             </button>
           </Link>
-          <Link to="/" className="flex-1">
+          <Link to="./pages/Register.jsx" className="flex-1">
             <button className="w-full py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:text-gray-800 transition-colors">
               Sign Up
             </button>
@@ -125,21 +137,45 @@ const Login = () => {
             </div>
           </div>
 
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-gradient-to-r from-yellow-400 to-yellow-500 text-white py-3 rounded-lg font-semibold hover:from-yellow-500 hover:to-yellow-600 transform hover:scale-[1.02] transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-          >
-            {loading ? (
-              <div className="flex items-center justify-center gap-2">
-                <div className="w-5 h-5 border-t-2 border-white rounded-full animate-spin"></div>
-                <span>Logging in...</span>
-              </div>
-            ) : (
-              "Login"
-            )}
-          </button>
+          {/* Buttons Container */}
+          <div className="space-y-3">
+            {/* Login Button */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-yellow-400 to-yellow-500 text-white py-3 rounded-lg font-semibold hover:from-yellow-500 hover:to-yellow-600 transform hover:scale-[1.02] transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+            >
+              {loading ? (
+                <div className="flex items-center justify-center gap-2">
+                  <div className="w-5 h-5 border-t-2 border-white rounded-full animate-spin"></div>
+                  <span>Logging in...</span>
+                </div>
+              ) : (
+                "Login"
+              )}
+            </button>
+
+            {/* Direct Navigation Buttons */}
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={goToProducts}
+                className="bg-green-500 text-white py-2 rounded-lg font-medium hover:bg-green-600 transform hover:scale-[1.02] transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center gap-1"
+              >
+                <span>🛒</span>
+                Go to Products
+              </button>
+
+              <button
+                type="button"
+                onClick={goToDashboard}
+                className="bg-blue-500 text-white py-2 rounded-lg font-medium hover:bg-blue-600 transform hover:scale-[1.02] transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center gap-1"
+              >
+                <span>📊</span>
+                Go to Dashboard
+              </button>
+            </div>
+          </div>
         </form>
 
         {/* Divider */}
@@ -190,6 +226,15 @@ const Login = () => {
           <p className="text-xs text-gray-500 text-center">
             Demo credentials: test@example.com / password123
           </p>
+        </div>
+
+        {/* Quick Navigation */}
+        <div className="mt-4 flex justify-center gap-4 text-xs text-gray-500">
+          <button onClick={() => navigate("/")} className="hover:text-yellow-600">Home</button>
+          <span>•</span>
+          <button onClick={() => navigate("/products")} className="hover:text-yellow-600">Products</button>
+          <span>•</span>
+          <button onClick={() => navigate("/dashboard")} className="hover:text-yellow-600">Dashboard</button>
         </div>
       </div>
     </div>
