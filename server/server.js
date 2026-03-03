@@ -4,13 +4,13 @@ import cors from "cors";
 import dotenv from "dotenv";
 dotenv.config();
 
+import bcrypt from "bcrypt"
 import productRoutes from "./routes/productRoutes.js";
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
-import bcrypt from bcrypt
 
 mongoose.connect(process.env.MONGODB)
   .then(() => console.log("MongoDB Connected"))
@@ -100,5 +100,5 @@ app.post("/createProduct", async (req, res) => {
 })
 
 
-app.listen(5000, () => console.log("Server running on port 5000"));
+app.listen(8080, () => console.log("Server running on port 5000"));
 

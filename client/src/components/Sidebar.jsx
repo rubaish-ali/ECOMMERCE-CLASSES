@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import React from "react";
 export default function Sidebar() {
   return (
-    <div className="w-64 h-screen bg-slate-900 text-white p-5 fixed">
+    <div className="w-64 h-screen bg-slate-900 text-white p-5 ">
       <h2 className="text-xl font-bold mb-8">Product Admin</h2>
 
       <ul className="space-y-4">

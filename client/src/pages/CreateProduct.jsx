@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import React from "react";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 export default function CreateProduct() {
   const [products, setProducts] = useState([]);
@@ -13,10 +15,17 @@ export default function CreateProduct() {
   });
 
   const [editId, setEditId] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const fetchProducts = async () => {
-    const res = await axios.get("http://localhost:5000/api/products");
-    setProducts(res.data);
+    try {
+      const res = await axios.get("http://localhost:5000/api/products");
+      setProducts(res.data);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      toast.error("Failed to fetch products");
+    }
   };
 
   useEffect(() => {
@@ -29,41 +38,72 @@ export default function CreateProduct() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
-    if (editId) {
-      await axios.put(`http://localhost:5000/api/products/${editId}`, form);
-      setEditId(null);
-    } else {
-      await axios.post("http://localhost:5000/api/products", form);
+    try {
+      if (editId) {
+        await axios.put(`http://localhost:5000/api/products/${editId}`, form);
+        toast.success("Product updated successfully!");
+        setEditId(null);
+      } else {
+        await axios.post("http://localhost:5000/api/products", form);
+        toast.success("Product created successfully!");
+      }
+
+      setForm({
+        title: "",
+        description: "",
+        price: "",
+        category: "",
+        imageUrl: ""
+      });
+
+      fetchProducts();
+    } catch (error) {
+      console.error("Error saving product:", error);
+      toast.error("Failed to save product");
+    } finally {
+      setLoading(false);
     }
-
-    setForm({
-      title: "",
-      description: "",
-      price: "",
-      category: "",
-      imageUrl: ""
-    });
-
-    fetchProducts();
   };
 
   const handleEdit = (product) => {
     setForm(product);
     setEditId(product._id);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleDelete = async (id) => {
-    await axios.delete(`http://localhost:5000/api/products/${id}`);
-    fetchProducts();
+    if (window.confirm("Are you sure you want to delete this product?")) {
+      try {
+        await axios.delete(`http://localhost:5000/api/products/${id}`);
+        toast.success("Product deleted successfully!");
+        fetchProducts();
+      } catch (error) {
+        console.error("Error deleting product:", error);
+        toast.error("Failed to delete product");
+      }
+    }
+  };
+
+  const goToLogin = () => {
+    navigate("/login");
   };
 
   return (
     <div className="ml-64 p-8 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
-      {/* Header Section */}
-      <div className="mb-8">
-        <h2 className="text-3xl font-bold text-gray-800 mb-2">📦 Manage Products</h2>
-        <p className="text-gray-600">Add, edit or delete your products</p>
+      {/* Header Section with Login Button */}
+      <div className="mb-8 flex justify-between items-center">
+        <div>
+          <h2 className="text-3xl font-bold text-gray-800 mb-2">📦 Manage Products</h2>
+          <p className="text-gray-600">Add, edit or delete your products</p>
+        </div>
+        <button
+          onClick={goToLogin}
+          className="bg-[#355872] text-white px-6 py-2 rounded-lg font-semibold hover:bg-[#2a4660] transition-colors flex items-center gap-2 shadow-md hover:shadow-lg"
+        >
+          <span>🔐</span> Login
+        </button>
       </div>
 
       {/* Form Card */}
@@ -79,7 +119,7 @@ export default function CreateProduct() {
               value={form.title}
               onChange={handleChange}
               placeholder="Product Title"
-              className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all"
+              className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#355872] focus:border-transparent transition-all"
               required
             />
 
@@ -88,7 +128,7 @@ export default function CreateProduct() {
               value={form.category}
               onChange={handleChange}
               placeholder="Category"
-              className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all"
+              className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#355872] focus:border-transparent transition-all"
             />
           </div>
 
@@ -98,7 +138,7 @@ export default function CreateProduct() {
             onChange={handleChange}
             placeholder="Product Description"
             rows="3"
-            className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all"
+            className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#355872] focus:border-transparent transition-all"
           />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -108,7 +148,7 @@ export default function CreateProduct() {
               value={form.price}
               onChange={handleChange}
               placeholder="Price ($)"
-              className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all"
+              className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#355872] focus:border-transparent transition-all"
               required
             />
 
@@ -117,35 +157,45 @@ export default function CreateProduct() {
               value={form.imageUrl}
               onChange={handleChange}
               placeholder="Image URL"
-              className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all"
+              className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#355872] focus:border-transparent transition-all"
             />
           </div>
 
-          <button
-            type="submit"
-            className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-white px-8 py-3 rounded-lg font-semibold hover:from-yellow-500 hover:to-yellow-600 transform hover:scale-105 transition-all duration-300 shadow-md hover:shadow-lg"
-          >
-            {editId ? "✏️ Update Product" : "➕ Add Product"}
-          </button>
-
-          {editId && (
+          <div className="flex items-center gap-3">
             <button
-              type="button"
-              onClick={() => {
-                setEditId(null);
-                setForm({
-                  title: "",
-                  description: "",
-                  price: "",
-                  category: "",
-                  imageUrl: ""
-                });
-              }}
-              className="ml-4 bg-gray-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-600 transition-colors"
+              type="submit"
+              disabled={loading}
+              className="bg-[#355872] text-white px-8 py-3 rounded-lg font-semibold hover:bg-[#2a4660] transform hover:scale-105 transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Cancel Edit
+              {loading ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-5 h-5 border-t-2 border-white rounded-full animate-spin"></div>
+                  <span>Processing...</span>
+                </div>
+              ) : (
+                editId ? "✏️ Update Product" : "➕ Add Product"
+              )}
             </button>
-          )}
+
+            {editId && (
+              <button
+                type="button"
+                onClick={() => {
+                  setEditId(null);
+                  setForm({
+                    title: "",
+                    description: "",
+                    price: "",
+                    category: "",
+                    imageUrl: ""
+                  });
+                }}
+                className="bg-gray-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-600 transition-colors"
+              >
+                Cancel Edit
+              </button>
+            )}
+          </div>
         </form>
       </div>
 
@@ -187,7 +237,7 @@ export default function CreateProduct() {
                 <div className="p-5">
                   <div className="flex justify-between items-start mb-2">
                     <h3 className="font-bold text-lg text-gray-800">{product.title}</h3>
-                    <span className="bg-yellow-100 text-yellow-700 text-xs font-semibold px-2 py-1 rounded">
+                    <span className="bg-[#355872] bg-opacity-10 text-[#355872] text-xs font-semibold px-2 py-1 rounded">
                       {product.category || "Uncategorized"}
                     </span>
                   </div>
@@ -197,14 +247,14 @@ export default function CreateProduct() {
                   </p>
 
                   <div className="flex items-center justify-between mb-4">
-                    <span className="text-2xl font-bold text-yellow-500">${product.price}</span>
+                    <span className="text-2xl font-bold text-[#355872]">${product.price}</span>
                   </div>
 
                   {/* Action Buttons */}
                   <div className="flex gap-2">
                     <button
                       onClick={() => handleEdit(product)}
-                      className="flex-1 bg-blue-500 text-white px-3 py-2 rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center gap-1 text-sm font-medium"
+                      className="flex-1 bg-[#355872] text-white px-3 py-2 rounded-lg hover:bg-[#2a4660] transition-colors flex items-center justify-center gap-1 text-sm font-medium"
                     >
                       <span>✏️</span> Edit
                     </button>
