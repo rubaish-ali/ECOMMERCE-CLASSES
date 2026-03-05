@@ -2,10 +2,10 @@ import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
+import productModel from "./model/Product.js"
 dotenv.config();
 
 import bcrypt from "bcrypt"
-import productRoutes from "./routes/productRoutes.js";
 
 const app = express();
 
@@ -16,7 +16,6 @@ mongoose.connect(process.env.MONGODB)
   .then(() => console.log("MongoDB Connected"))
   .catch(err => console.log(err));
 
-app.use("/api/products", productRoutes);
 app.post("/register", async (req, res) => {
   try {
     // password hash password 
@@ -98,7 +97,16 @@ app.post("/createProduct", async (req, res) => {
 
   }
 })
+app.delete("/deleteProduct/:id", async (req ,res)=>{
+  try{
+    let id = req.params.id
+    await productModel.findByIdAndDelete(id)
+    res.send("product delete sucessfully")
+  }catch (error){
+     console.log(error)
+  }
+  
+})
 
-
-app.listen(8080, () => console.log("Server running on port 5000"));
+app.listen(8080, () => console.log("Server running on port 8080"));
 

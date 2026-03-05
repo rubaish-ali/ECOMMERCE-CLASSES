@@ -8,7 +8,7 @@ export default function Sidebar() {
 
       <ul className="space-y-4">
         <li>
-          <Link to="/" className="block hover:bg-white/20 p-2 rounded">
+          <Link to="/dashboard" className="block hover:bg-white/20 p-2 rounded">
             🏠 Dashboard
           </Link>
         </li>
@@ -17,7 +17,13 @@ export default function Sidebar() {
           <Link to="/products" className="block hover:bg-white/20 p-2 rounded">
             📦 Products
           </Link>
-        
+
+         
+        </li>
+        <li>
+           <Link to="/all-products" className="block hover:bg-white/20 p-2 rounded">
+            📦 All Products
+          </Link>
         </li>
       </ul>
     </div>

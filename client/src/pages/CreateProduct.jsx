@@ -1,243 +1,194 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
-import React from "react";
-import { useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
-import Sidebar from "../components/Sidebar";
+import axios from "axios"
+import React, { useEffect, useState } from "react"
 
 export default function CreateProduct() {
-  const [products, setProducts] = useState([]);
-  const [form, setForm] = useState({
-    title: "",
-    description: "",
-    price: "",
-    category: "",
-    imageUrl: ""
-  });
 
-  const [editId, setEditId] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
-
-  const fetchProducts = async () => {
-    try {
-      const res = await axios.get("http://localhost:5000/api/products");
-      setProducts(res.data);
-    } catch (error) {
-      console.error("Error fetching products:", error);
-      toast.error("Failed to fetch products");
-    }
-  };
+  const [title, setTitle] = useState("")
+  const [description, setDescription] = useState("")
+  const [category, setCategory] = useState("")
+  const [imageUrl, setImageUrl] = useState("")
+  const [price, setPrice] = useState("")
+  const [data, setData] = useState([])
+  const [editId, setEditId] = useState(null)
+  const [cart, setCart] = useState([])
 
   useEffect(() => {
-    fetchProducts();
-  }, []);
+    getData()
+  }, [])
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  function getData() {
+    axios.get("http://localhost:8080/getAllProducts")
+      .then(res => setData(res.data.data))
+  }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+  function resetForm() {
+    setTitle("")
+    setDescription("")
+    setCategory("")
+    setImageUrl("")
+    setPrice("")
+    setEditId(null)
+    getData()
+  }
 
-    try {
-      if (editId) {
-        await axios.put(`http://localhost:5000/api/products/${editId}`, form);
-        toast.success("Product updated successfully!");
-        setEditId(null);
-      } else {
-        await axios.post("http://localhost:5000/api/products", form);
-        toast.success("Product created successfully!");
-      }
+  function submit(e) {
+    e.preventDefault()
 
-      setForm({
-        title: "",
-        description: "",
-        price: "",
-        category: "",
-        imageUrl: ""
-      });
-
-      fetchProducts();
-    } catch (error) {
-      console.error("Error saving product:", error);
-      toast.error("Failed to save product");
-    } finally {
-      setLoading(false);
+    if (editId) {
+      axios.put("http://localhost:8080/updateProduct/" + editId, {
+        title, description, price, category, imageUrl
+      }).then(() => resetForm())
+    } else {
+      axios.post("http://localhost:8080/createProduct", {
+        title, description, price, category, imageUrl
+      }).then(() => resetForm())
     }
-  };
+  }
 
-  const handleEdit = (product) => {
-    setForm(product);
-    setEditId(product._id);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
+  function deleteData(id) {
+    axios.delete("http://localhost:8080/deleteProduct/" + id)
+      .then(() => getData())
+  }
 
-  const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this product?")) {
-      try {
-        await axios.delete(`http://localhost:5000/api/products/${id}`);
-        toast.success("Product deleted successfully!");
-        fetchProducts();
-      } catch (error) {
-        console.error("Error deleting product:", error);
-        toast.error("Failed to delete product");
-      }
-    }
-  };
+  function editProduct(item) {
+    setEditId(item._id)
+    setTitle(item.title)
+    setDescription(item.description)
+    setCategory(item.category)
+    setImageUrl(item.imageUrl)
+    setPrice(item.price)
+    window.scrollTo({ top: 0, behavior: "smooth" })
+  }
 
-  const goToLogin = () => {
-    navigate("/login");
-  };
+  function addToCart(item) {
+    setCart([...cart, item])
+  }
 
   return (
-  
-    <div className="ml-64 w-full p-8 bg-gradient-to-br from-[#EEF0FF] to-[#F8F9FF] min-h-screen">
-    
-      <Sidebar />
-      {/* Header */}
-      <div className="mb-8 flex justify-between items-center">
-        <div>
-          <h2 className="text-3xl font-bold text-gray-800 mb-2">📦 Manage Products</h2>
-          <p className="text-gray-600">Add, edit or delete your products</p>
-        </div>
-        <button
-          onClick={goToLogin}
-          className="bg-[#6367FF] text-white px-6 py-2 rounded-lg font-semibold hover:bg-[#5458E6] transition-colors flex items-center gap-2 shadow-md hover:shadow-lg"
-        >
-          🔐 Login
-        </button>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 p-6">
 
-      {/* Form */}
-      <div className="bg-white rounded-2xl shadow-lg p-8 mb-8 border border-gray-200">
-        <h3 className="text-xl font-semibold text-gray-800 mb-6">
-          {editId ? "✏️ Edit Product" : "➕ Add New Product"}
-        </h3>
+      {/* ================= FORM SECTION ================= */}
+      <div className="max-w-lg mx-auto bg-white shadow-2xl rounded-3xl p-8 mb-12">
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <input
-              name="title"
-              value={form.title}
-              onChange={handleChange}
-              placeholder="Product Title"
-              className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#6367FF]"
-              required
-            />
+        <h1 className="text-3xl font-bold text-center text-[#6367FF] mb-8">
+          {editId ? "Update Product" : "Create Product"}
+        </h1>
 
-            <input
-              name="category"
-              value={form.category}
-              onChange={handleChange}
-              placeholder="Category"
-              className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#6367FF]"
-            />
-          </div>
+        <form onSubmit={submit} className="space-y-5">
 
-          <textarea
-            name="description"
-            value={form.description}
-            onChange={handleChange}
-            placeholder="Product Description"
-            rows="3"
-            className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#6367FF]"
+          <input
+            type="text"
+            placeholder="Product Title"
+            className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#6367FF] outline-none"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
           />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <textarea
+            placeholder="Product Description"
+            className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#6367FF] outline-none"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
+
+          <div className="grid grid-cols-2 gap-4">
             <input
-              name="price"
               type="number"
-              value={form.price}
-              onChange={handleChange}
-              placeholder="Price ($)"
-              className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#6367FF]"
-              required
+              placeholder="Price"
+              className="border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#6367FF] outline-none"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
             />
 
             <input
-              name="imageUrl"
-              value={form.imageUrl}
-              onChange={handleChange}
-              placeholder="Image URL"
-              className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#6367FF]"
+              type="text"
+              placeholder="Category"
+              className="border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#6367FF] outline-none"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
             />
           </div>
+
+          <input
+            type="text"
+            placeholder="Image URL"
+            className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#6367FF] outline-none"
+            value={imageUrl}
+            onChange={(e) => setImageUrl(e.target.value)}
+          />
 
           <button
             type="submit"
-            disabled={loading}
-            className="bg-[#6367FF] text-white px-8 py-3 rounded-lg font-semibold hover:bg-[#5458E6] transform hover:scale-105 transition-all duration-300 shadow-md disabled:opacity-50"
+            className="w-full bg-gradient-to-r from-[#6367FF] to-indigo-500 text-white py-3 rounded-xl font-semibold hover:scale-105 transition duration-300"
           >
-            {loading ? "Processing..." : editId ? "Update Product" : "Add Product"}
+            {editId ? "Update Product" : "Create Product"}
           </button>
+
         </form>
       </div>
 
-      {/* Products */}
-      <div>
-        <h3 className="text-xl font-semibold text-gray-800 mb-6">
-          📋 Products List ({products.length})
-        </h3>
+      {/* ================= PRODUCT GRID ================= */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {products.map((product) => (
-            <div
-              key={product._id}
-              className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-all"
-            >
-              <div className="h-48 overflow-hidden bg-gray-100">
-                {product.imageUrl ? (
-                  <img
-                    src={product.imageUrl}
-                    alt={product.title}
-                    className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-gray-200">
-                    No Image
-                  </div>
-                )}
+        {data.map(item => (
+          <div key={item._id}
+            className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition duration-300">
+
+            <img
+              src={item.imageUrl}
+              alt=""
+              className="w-full h-52 object-cover"
+            />
+
+            <div className="p-4 space-y-2">
+              <h2 className="text-lg font-bold">{item.title}</h2>
+              <p className="text-gray-600 text-sm">{item.description}</p>
+              <p className="text-sm text-gray-500">{item.category}</p>
+              <p className="text-[#6367FF] font-bold text-lg">${item.price}</p>
+
+              <div className="flex justify-between mt-4">
+                <button
+                  onClick={() => editProduct(item)}
+                  className="bg-yellow-400 px-3 py-1 rounded-lg text-sm">
+                  Edit
+                </button>
+
+                <button
+                  onClick={() => deleteData(item._id)}
+                  className="bg-red-500 text-white px-3 py-1 rounded-lg text-sm">
+                  Delete
+                </button>
+
+                <button
+                  onClick={() => addToCart(item)}
+                  className="bg-[#6367FF] text-white px-3 py-1 rounded-lg text-sm">
+                  Add
+                </button>
               </div>
+            </div>
 
-              <div className="p-5">
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="font-bold text-lg text-gray-800">{product.title}</h3>
-                  <span className="bg-[#6367FF]/10 text-[#6367FF] text-xs font-semibold px-2 py-1 rounded">
-                    {product.category || "Uncategorized"}
-                  </span>
-                </div>
+          </div>
+        ))}
 
-                <p className="text-gray-600 text-sm mb-3">
-                  {product.description || "No description available"}
-                </p>
+      </div>
 
-                <div className="text-2xl font-bold text-[#6367FF] mb-4">
-                  ${product.price}
-                </div>
+      {/* ================= CART SECTION ================= */}
+      {cart.length > 0 && (
+        <div className="mt-16 max-w-2xl mx-auto bg-white rounded-2xl shadow-xl p-6">
+          <h2 className="text-2xl font-bold text-[#6367FF] mb-6">Cart</h2>
 
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => handleEdit(product)}
-                    className="flex-1 bg-[#6367FF] text-white px-3 py-2 rounded-lg hover:bg-[#5458E6] transition-colors text-sm"
-                  >
-                    ✏️ Edit
-                  </button>
+          {cart.map((item, index) => (
+            <div key={index}
+              className="flex justify-between border-b py-3">
 
-                  <button
-                    onClick={() => handleDelete(product._id)}
-                    className="flex-1 bg-red-500 text-white px-3 py-2 rounded-lg hover:bg-red-600 transition-colors text-sm"
-                  >
-                    🗑️ Delete
-                  </button>
-                </div>
-              </div>
+              <span>{item.title}</span>
+              <span className="font-semibold">${item.price}</span>
+
             </div>
           ))}
         </div>
-      </div>
+      )}
 
     </div>
-  );
+  )
 }

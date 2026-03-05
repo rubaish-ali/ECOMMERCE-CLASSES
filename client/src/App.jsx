@@ -4,7 +4,8 @@ import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Dashboard from "./pages/Dashboard.jsx";
-import CreateProduct from "./pages/CreateProduct";
+import Product from "./pages/Product";
+import CreateProduct from "./pages/CreateProduct.jsx"
 import Cart from "./pages/Cart.jsx";
  import Login from "./pages/Login.jsx"
 import Register from "./pages/Register.jsx"
@@ -19,7 +20,8 @@ function App() {
       
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/products" element={<CreateProduct />} />
+        <Route path="/products" element={<Product />} />
+        <Route path="/createproducts" element={<CreateProduct />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/login" element={<Login /> } />
         <Route path="/register" element={<Register /> } />
