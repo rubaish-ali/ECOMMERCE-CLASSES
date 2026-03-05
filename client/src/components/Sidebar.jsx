@@ -1,25 +1,23 @@
-import { Link } from "react-router-dom";
 import React from "react";
+import { Link } from "react-router-dom";
+
 export default function Sidebar() {
   return (
-    <div className="w-64 h-screen bg-slate-900 text-white p-5 ">
-      <h2 className="text-xl font-bold mb-8">Product Admin</h2>
+    <div className="w-64 h-screen bg-[#8494FF] text-white fixed left-0 top-0 p-6">
+      <h2 className="text-2xl font-bold mb-8">Zoomify</h2>
 
       <ul className="space-y-4">
         <li>
-          <Link to="/" className="block p-2 hover:bg-yellow-500 rounded">
-            Dashboard
+          <Link to="/" className="block hover:bg-white/20 p-2 rounded">
+            🏠 Dashboard
           </Link>
         </li>
+
         <li>
-          <Link to="/create-product" className="block p-2 hover:bg-yellow-500 rounded">
-            Create Product
+          <Link to="/products" className="block hover:bg-white/20 p-2 rounded">
+            📦 Products
           </Link>
-        </li>
-        <li>
-          <Link to="/all-products" className="block p-2 hover:bg-yellow-500 rounded">
-            All Products
-          </Link>
+        
         </li>
       </ul>
     </div>
